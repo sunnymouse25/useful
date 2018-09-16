@@ -36,31 +36,12 @@ def call(command):
     
 def init_file(filename, folder = './'):   # make new empty file
     with open(folder+filename, 'w') as output_file:
-        pass
-
-def str_to_int(lst):
-    new_lst = []
-    for elm in lst:
-        new_lst.append(int(elm))
-    return new_lst
-    
-def int_to_str(lst):
-    new_lst = []
-    for elm in lst:
-        new_lst.append(str(elm))
-    return new_lst    
+        pass 
 
 def sign(x): return 1 if x >= 0 else -1
 
 def sort_by_value(dct):
     print sorted(dct.items(), key=lambda x:x[1]) 
-
-def strip_list(lst,to_strip):   #strips smth from each element of list
-    new_lst = []
-    for elm in lst:
-        new_elm = elm.strip(to_strip)
-        new_lst.append(new_elm)
-    return new_lst    
 
 def read_cigar(row):   #reads CIGAR field from SAM file
     M = 0    
@@ -119,7 +100,41 @@ def save_svmlight_data2(x, label, data_filename, data_folder = 'predict/'):
 
     file.write(line)
     file.close()
-   
+
+def leave_unique(edge_dict, return_copies = True):
+    '''
+    Two nodes are connected by edge if by some rule they are similar;
+    We'll have both node1-node2 and node2-node1 pairs in a dictionary;
+    Takes a dictionary of all edges;
+    Returns set of nodes that are all different (only one copy from set of all similar)
+    Can also return a list of copies for each node in unique_set
+    '''
+    isSeen = defaultdict(lambda:False)
+    isCopy = set()
+    def step(node):
+        isSeen[node] = True 
+        for any_node in edge_dict[node]:   
+            if not isSeen[any_node]:
+                isCopy.add(any_node)   #the first node is not a copy
+                return any_node
+        return None
+
+    for node in edge_dict.keys():
+        new_node = node
+        while new_node:
+            new_node = step(new_node)
+    
+    unique_set = set()
+    copies_dict = defaultdict(list)    
+    for node in edge_dict.keys():
+        if node not in isCopy:
+            unique_set.add(node)
+            for value in edge_dict[node]:
+                copies_dict[node].append(value)
+    if return_copies:
+        return unique_set, copies_dict
+    else:
+        return unique_set   
             
     
     
